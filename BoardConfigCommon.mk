@@ -39,7 +39,7 @@ TARGET_SPECIFIC_HEADER_PATH := device/lge/g2-common/include
 
 # Kernel information
 BOARD_KERNEL_BASE     := 0x00000000
-BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=g2 user_debug=31 msm_rtb.filter=0x0
+BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=g2 user_debug=31 msm_rtb.filter=0x0 androidboot.selinux=permissive
 BOARD_MKBOOTIMG_ARGS  := --ramdisk_offset 0x05000000 --tags_offset 0x04800000
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_SEPARATED_DT := true
@@ -121,34 +121,26 @@ BOARD_HARDWARE_CLASS := device/lge/g2-common/cmhw/
 BOARD_SEPOLICY_DIRS += \
         device/lge/g2-common/sepolicy
 
-BOARD_SEPOLICY_UNION += \
-	file_contexts \
-	property_contexts \
-	te_macros \
-	bridge.te \
-	camera.te \
-	conn_init.te \
-	device.te \
-	dhcp.te \
-	domain.te \
-	drmserver.te \
-	file.te \
-	kickstart.te \
-	init.te \
-	mediaserver.te \
-	mpdecision.te \
-	netmgrd.te \
-	property.te \
-	qmux.te \
-	rild.te \
-	rmt.te \
-	sensors.te \
-	surfaceflinger.te \
-	system.te \
-	tee.te \
-	thermald.te \
-	ueventd.te \
-	wpa_supplicant.te
+BOARD_SEPOLICY_UNION := \
+        app.te \
+        bluetooth.te \
+        device.te \
+        domain.te \
+        drmserver.te \
+        file.te \
+        file_contexts \
+        hci_init.te \
+        init_shell.te \
+        keystore.te \
+        mediaserver.te \
+        kickstart.te \
+        nfc.te \
+        rild.te \
+        surfaceflinger.te \
+        system.te \
+        ueventd.te \
+        wpa.te
+
 
 BOARD_NFC_HAL_SUFFIX := g2
 

@@ -158,11 +158,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
         libmm-omxcore \
 	libdivxdrmdecrypt \
-	libOmxVdec \
-	libOmxVenc \
 	libOmxCore \
 	libstagefrighthw \
-	libc2dcolorconvert
+	libc2dcolorconvert \
+	libqdMetaData_intermediates
 
 PRODUCT_PACKAGES += \
 	libloc_adapter \
