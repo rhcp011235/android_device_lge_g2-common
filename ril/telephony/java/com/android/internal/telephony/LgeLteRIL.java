@@ -570,7 +570,7 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
         send(rr);
     }
 
-    protected void
+    protected RILRequest
     processSolicited (Parcel p) {
         int serial, error;
         boolean found = false;
@@ -597,8 +597,8 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
                                 AsyncResult.forMessage(rr.mResult, null, thr);
                                 rr.mResult.sendToTarget();
                             }
-                            rr.release();
-                            return;
+
+                            return rr;
                         }
                     }
                 }
@@ -617,7 +617,7 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
         rr = findAndRemoveRequestFromList(serial);
 
         if (rr == null) {
-            return;
+            return null;
         }
 
         Object ret = null;
@@ -637,9 +637,10 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
         if (rr.mResult != null) {
             AsyncResult.forMessage(rr.mResult, ret, null);
             rr.mResult.sendToTarget();
-        }
+         }
 
-        rr.release();
+            return rr;
+
     }
 
     private Object
