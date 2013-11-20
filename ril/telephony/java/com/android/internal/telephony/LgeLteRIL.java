@@ -229,7 +229,6 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
         return status;
     }
 
-    /*
     @Override
     protected DataCallResponse getDataCallResponse(Parcel p, int version) {
         DataCallResponse dataCall = new DataCallResponse();
@@ -287,7 +286,51 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
         }
 
         return dataCall;
-    }*/
+    }
+
+    @Override
+    protected Object
+    responseSetupDataCall(Parcel p) {
+        DataCallResponse dataCall;
+
+        boolean oldRil = needsOldRilFeature("datacall");
+
+        if (!oldRil)
+           return super.responseSetupDataCall(p);
+
+        dataCall = new DataCallResponse();
+        dataCall.version = 4;
+
+        dataCall.cid = 0; // Integer.parseInt(p.readString());
+        p.readString();
+        dataCall.ifname = p.readString();
+        if ((dataCall.status == DcFailCause.NONE.getErrorCode()) &&
+             TextUtils.isEmpty(dataCall.ifname) && dataCall.active != 0) {
+            throw new RuntimeException(
+                    "RIL_REQUEST_SETUP_DATA_CALL response, no ifname");
+        }
+        /* Use the last digit of the interface id as the cid */
+        if (!needsOldRilFeature("singlepdp")) {
+            dataCall.cid =
+                Integer.parseInt(dataCall.ifname.substring(dataCall.ifname.length() - 1));
+        }
+
+        mLastDataIface[dataCall.cid] = dataCall.ifname;
+
+
+        String addresses = p.readString();
+        if (!TextUtils.isEmpty(addresses)) {
+          dataCall.addresses = addresses.split(" ");
+        }
+
+        dataCall.dnses = new String[2];
+        dataCall.dnses[0] = SystemProperties.get("net."+dataCall.ifname+".dns1");
+        dataCall.dnses[1] = SystemProperties.get("net."+dataCall.ifname+".dns2");
+        dataCall.active = 1;
+        dataCall.status = 0;
+
+        return dataCall;
+    }
 
     @Override
     public void getNeighboringCids(Message response) {
@@ -570,115 +613,14 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
         send(rr);
     }
 
-    protected RILRequest
-    processSolicited (Parcel p) {
-        int serial, error;
-        boolean found = false;
-        int dataPosition = p.dataPosition(); // save off position within the Parcel
-        serial = p.readInt();
-        error = p.readInt();
-
-        RILRequest rr = null;
-
-        /* Pre-process the reply before popping it */
-        synchronized (mRequestList) {
-            for (int i = 0, s = mRequestList.size() ; i < s ; i++) {
-                RILRequest tr = mRequestList.get(i);
-                if (tr.mSerial == serial) {
-                    if (error == 0 || p.dataAvail() > 0) {
-                        try {switch (tr.mRequest) {
-                            /* Get those we're interested in */
-                            case RIL_REQUEST_DATA_REGISTRATION_STATE:
-                                rr = tr;
-                                break;
-                        }} catch (Throwable thr) {
-                            // Exceptions here usually mean invalid RIL responses
-                            if (rr.mResult != null) {
-                                AsyncResult.forMessage(rr.mResult, null, thr);
-                                rr.mResult.sendToTarget();
-                            }
-
-                            return rr;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (rr == null) {
-            /* Nothing we care about, go up */
-            p.setDataPosition(dataPosition);
-
-            // Forward responses that we are not overriding to the super class
-            super.processSolicited(p);
-        }
-
-
-        rr = findAndRemoveRequestFromList(serial);
-
-        if (rr == null) {
-            return null;
-        }
-
-        Object ret = null;
-
-        if (error == 0 || p.dataAvail() > 0) {
-            switch (rr.mRequest) {
-                case RIL_REQUEST_DATA_REGISTRATION_STATE: ret =  dataRegState(p); break;
-                default:
-                    throw new RuntimeException("Unrecognized solicited response: " + rr.mRequest);
-            }
-            //break;
-        }
-
-        if (RILJ_LOGD) riljLog(rr.serialString() + "< " + requestToString(rr.mRequest)
-            + " " + retToString(rr.mRequest, ret));
-
-        if (rr.mResult != null) {
-            AsyncResult.forMessage(rr.mResult, ret, null);
-            rr.mResult.sendToTarget();
-         }
-
-            return rr;
-
-    }
-
-    private Object
-    dataRegState(Parcel p) {
-        int num;
-        String response[];
-
-        response = p.readStringArray();
-
-        /* DANGER WILL ROBINSON
-         * In the vzw variant, we're getting a "roaming" data indication
-         * in the LTE response... with EHRPD as the RAT, and all the other
-         * fields nulled out. Let's assume that's some weird kind of
-         * stating we're out of LTE and declare it as regular service */
-        if (response.length > 10 &&
-            response[0].equals("5") &&
-            response[2] == null &&
-            response[3].equals("13") &&
-            response[6] == null &&
-            response[7] == null &&
-            response[8] == null) {
-
-            response[0] = "1";
-        }
-
-        return response;
-    }
-
-    /*
     @Override
     public void
     setupDataCall(String radioTechnology, String profile, String apn,
             String user, String password, String authType, String protocol,
             Message result) {
 
-        riljLog("> getIMSI:UPDATING VSS PROFILE ");
         RILRequest rrSPT = RILRequest.obtain(
-                0x88, null); // RIL_REQUEST_VSS_UPDATE_PROFILE
+                0x16f, null); //121 - RIL_REQUEST_VSS_UPDATE_PROFILE
         rrSPT.mParcel.writeInt(1); // pdnId
         rrSPT.mParcel.writeInt(apn.length()); // apnLength
         rrSPT.mParcel.writeString(apn); // apn
@@ -694,5 +636,5 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
 
         super.setupDataCall(radioTechnology, profile, apn, user, password, 
                             authType, protocol, result);
-    }*/
+    }
 }
