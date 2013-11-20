@@ -185,7 +185,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	drm.service.enabled=true
 
 PRODUCT_PROPERTY_OVERRIDES += \
-	ro.bt.bdaddr_path=/data/misc/bdaddr
+	ro.bt.bdaddr_path=/data/misc/bdaddr \
+	ro.com.android.dataroaming=false
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	wifi.interface=wlan0 \
