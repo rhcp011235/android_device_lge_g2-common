@@ -222,6 +222,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
         $(LOCAL_PATH)/configs/bcmdhd.cal:system/etc/wifi/bcmdhd.cal
 
+# Fix tap to pay from the N5 dump
+PRODUCT_COPY_FILES += \
+        $(LOCAL_PATH)/android.hardware.nfc.hce.xml:system/etc/permissions/android.hardware.nfc.hce.xml
+
+
 # This hw ships locked, work around it with loki
 PRODUCT_PACKAGES += \
         loki.sh \
