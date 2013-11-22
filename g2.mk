@@ -160,13 +160,24 @@ PRODUCT_PACKAGES += \
 	audio.r_submix.default \
 	libaudio-resampler
 
+#PRODUCT_PACKAGES += \
+#        libmm-omxcore \
+#	libdivxdrmdecrypt \
+#	libOmxVdec \
+#	libOmxVenc \
+#	libOmxCore \
+#	libstagefrighthw \
+#	libc2dcolorconvert \
+#	libqdMetaData_intermediates
+
 PRODUCT_PACKAGES += \
-        libmm-omxcore \
+	libmm-omxcore \
 	libdivxdrmdecrypt \
+	libOmxVdec \
+	libOmxVenc \
 	libOmxCore \
 	libstagefrighthw \
-	libc2dcolorconvert \
-	libqdMetaData_intermediates
+	libc2dcolorconvert
 
 PRODUCT_PACKAGES += \
 	libloc_adapter \
@@ -210,10 +221,6 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_COPY_FILES += \
         $(LOCAL_PATH)/configs/bcmdhd.cal:system/etc/wifi/bcmdhd.cal
-
-# Fix tap to pay from the N5 dump
-PRODUCT_COPY_FILES += \
-	$(LOCAL_PATH)/android.hardware.nfc.hce.xml:system/etc/permissions/android.hardware.nfc.hce.xml
 
 # This hw ships locked, work around it with loki
 PRODUCT_PACKAGES += \
